@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Modular Grid Calculator</title>
+  <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    body {
+      font-family: sans-serif;
+      background-color: #06548A;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    #root {
+      background-color: white;
+      max-width: 960px;
+      width: 100%;
+      border-radius: 24px;
+      padding: 48px;
+      box-shadow: 0 0 0 6px #06548A, 0 20px 40px rgba(0, 0, 0, 0.1);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      overflow-wrap: break-word;
+    }
+
+    h1 {
+      grid-column: 1 / -1;
+      font-size: 2.5rem;
+      margin-bottom: 24px;
+      text-align: left;
+      color: #0c3059;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 1.05rem;
+      margin-bottom: 4px;
+    }
+
+    input[type="number"] {
+      font-size: 1.2rem;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 1.5px solid #c1c7d0;
+      background: #f8faff;
+      font-weight: 500;
+      width: 100%;
+    }
+
+    input:focus {
+      border-color: #06548A;
+      outline: none;
+      background: white;
+    }
+
+    button {
+      background: #06548A;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      padding: 14px 22px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.3s ease all;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #0a6fb1;
+    }
+
+    .result {
+      background-color: #f0f7ff;
+      border-radius: 16px;
+      padding: 24px 20px;
+      box-shadow: inset 0 0 8px rgba(6, 84, 138, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 100%;
+      overflow-wrap: break-word;
+    }
+
+    .result p {
+      margin: 0;
+      font-size: 1.05rem;
+      text-align: left;
+    }
+
+    .result strong {
+      color: #06548A;
+    }
+
+    .warning {
+      background: #fff3cd;
+      color: #856404;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
+    .error {
+      grid-column: 1 / -1;
+      background: #ffe6e6;
+      color: #a94442;
+      padding: 20px;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+
+    footer {
+      background-color: #06548A;
+      color: white;
+      padding: 20px;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    footer a {
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    @media (max-width: 720px) {
+      #root {
+        grid-template-columns: 1fr;
+        padding: 32px 24px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div id="root"></div>
+  </main>
+
+<footer>
+  <a href="https://buymeacoffee.com/danielrolfe" target="_blank" rel="noopener noreferrer" class="coffee-btn" aria-label="Buy me a coffee">
+    ☕ Buy Me a Coffee
+  </a><br />
+  Visit my website: <a href="https://grafix.buzz" target="_blank" rel="noopener noreferrer">Grafix.buzz</a><br />
+  © 2025 Daniel Rolfe. All rights reserved.
+</footer>
+
+<style>
+  /* ...existing styles... */
+
+  footer a.coffee-btn {
+    display: inline-block;
+    margin: 8px 0;
+    padding: 8px 14px;
+    background-color: #FF813F;
+    color: white;
+    font-weight: 700;
+    border-radius: 18px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+  }
+
+  footer a.coffee-btn:hover,
+  footer a.coffee-btn:focus {
+    background-color: #e36f27;
+  }
+</style>
+
+  <script type="text/babel">
+    function ModularGridCalculator() {
+      const [width, setWidth] = React.useState(1080);
+      const [height, setHeight] = React.useState(1920);
+      const [squareSize, setSquareSize] = React.useState(6);
+      const [result, setResult] = React.useState(null);
+
+      const gcd = (a, b) => (b === 0 ? a : gcd(b, a % b));
+
+      const validateInputs = () => {
+        if (width <= 0 || height <= 0 || squareSize <= 0) {
+          setResult({ error: "All values must be positive numbers." });
+          return false;
+        }
+        return true;
+      };
+
+      const calculate = () => {
+        if (!validateInputs()) return;
+
+        const cols = +(width / squareSize).toFixed(2);
+        const rows = +(height / squareSize).toFixed(2);
+        const total = Math.floor(cols) * Math.floor(rows);
+        const divisor = gcd(width, height);
+        const ratio = `${width / divisor}:${height / divisor}`;
+
+        setResult({
+          cols,
+          rows,
+          total,
+          ratio,
+          squareSize,
+          exactFit: Number.isInteger(cols) && Number.isInteger(rows),
+          error: null,
+        });
+      };
+
+      React.useEffect(() => {
+        calculate();
+      }, []);
+
+      return (
+        <>
+          <h1>Modular Grid Calculator</h1>
+          <form onSubmit={e => { e.preventDefault(); calculate(); }}>
+            <label htmlFor="width">Width (px)</label>
+            <input id="width" type="number" value={width} onChange={e => setWidth(+e.target.value)} />
+            <label htmlFor="height">Height (px)</label>
+            <input id="height" type="number" value={height} onChange={e => setHeight(+e.target.value)} />
+            <label htmlFor="squareSize">Square Size</label>
+            <input id="squareSize" type="number" value={squareSize} onChange={e => setSquareSize(+e.target.value)} />
+            <button type="submit">Calculate</button>
+          </form>
+          {result?.error && (
+            <div className="error">{result.error}</div>
+          )}
+          {result && !result.error && (
+            <div className="result">
+              <p><strong>Aspect Ratio:</strong> {result.ratio}</p>
+              <p><strong>Square Size:</strong> {result.squareSize}px</p>
+              <p><strong>Columns:</strong> {result.cols}</p>
+              <p><strong>Rows:</strong> {result.rows}</p>
+              <p><strong>Total Squares:</strong> {result.total}</p>
+              {!result.exactFit && <p className="warning">⚠️ Grid doesn’t fit perfectly ⚠️</p>}
+            </div>
+          )}
+        </>
+      );
+    }
+
+    ReactDOM.render(<ModularGridCalculator />, document.getElementById('root'));
+  </script>
+</body>
+</html>
+
+
