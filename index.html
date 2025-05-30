@@ -153,6 +153,21 @@
       text-decoration: underline;
     }
 
+    @media (max-width: 720px) {
+      #root {
+        grid-template-columns: 1fr;
+        padding: 32px 24px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+
     footer a.coffee-btn {
       display: inline-block;
       margin: 8px 0;
@@ -168,21 +183,6 @@
     footer a.coffee-btn:hover,
     footer a.coffee-btn:focus {
       background-color: #e36f27;
-    }
-
-    @media (max-width: 720px) {
-      #root {
-        grid-template-columns: 1fr;
-        padding: 32px 24px;
-      }
-
-      h1 {
-        font-size: 2rem;
-      }
-
-      button {
-        width: 100%;
-      }
     }
   </style>
 </head>
@@ -201,9 +201,9 @@
 
   <script type="text/babel">
     function ModularGridCalculator() {
-      const [width, setWidth] = React.useState('1080');
-      const [height, setHeight] = React.useState('1920');
-      const [squareSize, setSquareSize] = React.useState('6');
+      const [width, setWidth] = React.useState("1080");
+      const [height, setHeight] = React.useState("1920");
+      const [squareSize, setSquareSize] = React.useState("6");
       const [result, setResult] = React.useState(null);
 
       const gcd = (a, b) => (b === 0 ? a : gcd(b, a % b));
@@ -217,7 +217,7 @@
       };
 
       const calculate = () => {
-        // Convert strings to numbers, fallback to 0 if empty
+        // parse numbers safely
         const w = Number(width);
         const h = Number(height);
         const s = Number(squareSize);
@@ -249,42 +249,49 @@
         <>
           <h1>Modular Grid Calculator</h1>
           <form onSubmit={e => { e.preventDefault(); calculate(); }}>
-            <label htmlFor="width">Width (px)</label>
+            <label htmlFor="width">Width</label>
             <input
               id="width"
               type="number"
+              min="0"
               value={width}
               onChange={e => setWidth(e.target.value)}
-              min="0"
+              placeholder="Enter width"
             />
-            <label htmlFor="height">Height (px)</label>
+            <label htmlFor="height">Height</label>
             <input
               id="height"
               type="number"
+              min="0"
               value={height}
               onChange={e => setHeight(e.target.value)}
-              min="0"
+              placeholder="Enter height"
             />
-            <label htmlFor="squareSize">Square Size</label>
+            <label htmlFor="squareSize">Module Size (Width & Height)</label>
             <input
               id="squareSize"
               type="number"
+              min="0"
               value={squareSize}
               onChange={e => setSquareSize(e.target.value)}
-              min="0"
+              placeholder="Enter module size"
             />
             <button type="submit">Calculate</button>
           </form>
+
           {result?.error && (
             <div className="error">{result.error}</div>
           )}
+
           {result && !result.error && (
             <div className="result">
               <p><strong>Aspect Ratio:</strong> {result.ratio}</p>
-              <p><strong>Square Size:</strong> {result.squareSize}px</p>
-              <p><strong>Columns:</strong> {result.cols}</p>
-              <p><strong>Rows:</strong> {result.rows}</p>
-              <p><strong>Total Squares:</strong> {result.total}</p>
+              <p><strong>Module Size:</strong> {result.squareSize}x{result.squareSize}</p>
+              <p><strong>Modules Across:</strong> {result.cols}</p>
+              <p><strong>Modules Down:</strong> {result.rows}</p>
+              <p>
+                <strong>Total Modules:</strong> {result.total}
+              </p>
               {!result.exactFit && <p className="warning">⚠️ Grid doesn’t fit perfectly ⚠️</p>}
             </div>
           )}
