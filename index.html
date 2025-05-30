@@ -249,7 +249,7 @@
         <>
           <h1>Modular Grid Calculator</h1>
           <form onSubmit={e => { e.preventDefault(); calculate(); }}>
-            <label htmlFor="width">Width</label>
+            <label htmlFor="width">Page Width</label>
             <input
               id="width"
               type="number"
@@ -258,7 +258,7 @@
               onChange={e => setWidth(e.target.value)}
               placeholder="Enter width"
             />
-            <label htmlFor="height">Height</label>
+            <label htmlFor="height">Page Height</label>
             <input
               id="height"
               type="number"
