@@ -174,46 +174,31 @@
     <div id="root"></div>
   </main>
 
-<footer>
-  <a href="https://buymeacoffee.com/danielrolfe" target="_blank" rel="noopener noreferrer" class="coffee-btn" aria-label="Buy me a coffee">
-    ☕ Buy Me a Coffee
-  </a><br />
-  Visit my website: <a href="https://grafix.buzz" target="_blank" rel="noopener noreferrer">Grafix.buzz</a><br />
-  © 2025 Daniel Rolfe. All rights reserved.
-</footer>
-
-<style>
-  /* ...existing styles... */
-
-  footer a.coffee-btn {
-    display: inline-block;
-    margin: 8px 0;
-    padding: 8px 14px;
-    background-color: #FF813F;
-    color: white;
-    font-weight: 700;
-    border-radius: 18px;
-    text-decoration: none;
-    transition: background-color 0.3s ease;
-  }
-
-  footer a.coffee-btn:hover,
-  footer a.coffee-btn:focus {
-    background-color: #e36f27;
-  }
-</style>
+  <footer>
+    Visit my website: 
+    <a href="https://grafix.buzz" target="_blank">Grafix.buzz</a><br />
+    © 2025 Daniel Rolfe. All rights reserved.
+  </footer>
 
   <script type="text/babel">
     function ModularGridCalculator() {
-      const [width, setWidth] = React.useState(1080);
-      const [height, setHeight] = React.useState(1920);
-      const [squareSize, setSquareSize] = React.useState(6);
+      // Keep inputs as strings to allow clearing/deleting zeros
+      const [width, setWidth] = React.useState("1080");
+      const [height, setHeight] = React.useState("1920");
+      const [squareSize, setSquareSize] = React.useState("6");
       const [result, setResult] = React.useState(null);
 
       const gcd = (a, b) => (b === 0 ? a : gcd(b, a % b));
 
       const validateInputs = () => {
-        if (width <= 0 || height <= 0 || squareSize <= 0) {
+        const w = Number(width);
+        const h = Number(height);
+        const sq = Number(squareSize);
+
+        if (
+          isNaN(w) || isNaN(h) || isNaN(sq) ||
+          w <= 0 || h <= 0 || sq <= 0
+        ) {
           setResult({ error: "All values must be positive numbers." });
           return false;
         }
@@ -223,18 +208,22 @@
       const calculate = () => {
         if (!validateInputs()) return;
 
-        const cols = +(width / squareSize).toFixed(2);
-        const rows = +(height / squareSize).toFixed(2);
+        const w = Number(width);
+        const h = Number(height);
+        const sq = Number(squareSize);
+
+        const cols = +(w / sq).toFixed(2);
+        const rows = +(h / sq).toFixed(2);
         const total = Math.floor(cols) * Math.floor(rows);
-        const divisor = gcd(width, height);
-        const ratio = `${width / divisor}:${height / divisor}`;
+        const divisor = gcd(w, h);
+        const ratio = `${w / divisor}:${h / divisor}`;
 
         setResult({
           cols,
           rows,
           total,
           ratio,
-          squareSize,
+          squareSize: sq,
           exactFit: Number.isInteger(cols) && Number.isInteger(rows),
           error: null,
         });
@@ -247,18 +236,47 @@
       return (
         <>
           <h1>Modular Grid Calculator</h1>
-          <form onSubmit={e => { e.preventDefault(); calculate(); }}>
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              calculate();
+            }}
+          >
             <label htmlFor="width">Width (px)</label>
-            <input id="width" type="number" value={width} onChange={e => setWidth(+e.target.value)} />
+            <input
+              id="width"
+              type="number"
+              value={width}
+              onChange={e => setWidth(e.target.value)}
+              min="0"
+              step="any"
+            />
+
             <label htmlFor="height">Height (px)</label>
-            <input id="height" type="number" value={height} onChange={e => setHeight(+e.target.value)} />
+            <input
+              id="height"
+              type="number"
+              value={height}
+              onChange={e => setHeight(e.target.value)}
+              min="0"
+              step="any"
+            />
+
             <label htmlFor="squareSize">Square Size</label>
-            <input id="squareSize" type="number" value={squareSize} onChange={e => setSquareSize(+e.target.value)} />
+            <input
+              id="squareSize"
+              type="number"
+              value={squareSize}
+              onChange={e => setSquareSize(e.target.value)}
+              min="0"
+              step="any"
+            />
+
             <button type="submit">Calculate</button>
           </form>
-          {result?.error && (
-            <div className="error">{result.error}</div>
-          )}
+
+          {result?.error && <div className="error">{result.error}</div>}
+
           {result && !result.error && (
             <div className="result">
               <p><strong>Aspect Ratio:</strong> {result.ratio}</p>
@@ -266,14 +284,16 @@
               <p><strong>Columns:</strong> {result.cols}</p>
               <p><strong>Rows:</strong> {result.rows}</p>
               <p><strong>Total Squares:</strong> {result.total}</p>
-              {!result.exactFit && <p className="warning">⚠️ Grid doesn’t fit perfectly ⚠️</p>}
+              {!result.exactFit && (
+                <p className="warning">⚠️ Grid does not fit perfectly!</p>
+              )}
             </div>
           )}
         </>
       );
     }
 
-    ReactDOM.render(<ModularGridCalculator />, document.getElementById('root'));
+    ReactDOM.render(<ModularGridCalculator />, document.getElementById("root"));
   </script>
 </body>
 </html>
